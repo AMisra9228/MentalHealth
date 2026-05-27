@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#090914"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Logo -->
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_logo"
+            android:padding="18dp"
+            android:src="@android:drawable/ic_lock_idle_lock"
+            app:tint="#FFFFFF" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="18dp"
+            android:text="Create Account"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="6dp"
+            android:text="Join and start managing your tasks"
+            android:textColor="#8B8BA7"
+            android:textSize="14sp" />
+
+        <!-- Full Name -->
+        <TextView
+            style="@style/LabelStyle"
+            android:text="FULL NAME" />
+
+        <EditText
+            android:id="@+id/edtName"
+            style="@style/EditStyle"
+            android:hint="Arjun Rao"
+            android:drawableEnd="@android:drawable/ic_menu_myplaces" />
+
+        <!-- Username -->
+        <TextView
+            style="@style/LabelStyle"
+            android:text="USERNAME" />
+
+        <EditText
+            android:id="@+id/edtUsername"
+            style="@style/EditStyle"
+            android:hint="Abhi"
+            android:textColorHint="#5E5E8B"
+            android:background="@drawable/bg_edit_selected"
+            android:drawableEnd="@android:drawable/ic_menu_share" />
+
+        <TextView
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="✓ @arjun_rao is available"
+            android:textColor="#1ED760"
+            android:textSize="12sp" />
+
+        <!-- Email -->
+        <TextView
+            style="@style/LabelStyle"
+            android:text="EMAIL ADDRESS" />
+
+        <EditText
+            android:id="@+id/edtEmail"
+            style="@style/EditStyle"
+            android:hint="you@example.com"
+            android:inputType="textEmailAddress"
+            android:drawableEnd="@android:drawable/ic_dialog_email" />
+
+        <!-- Mobile Number -->
+        <TextView
+            style="@style/LabelStyle"
+            android:text="MOBILE NUMBER" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinnerCountryCode"
+                android:layout_width="100dp"
+                android:layout_height="55dp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/bg_edit"
+                android:padding="10dp"
+                android:spinnerMode="dropdown" />
+
+            <EditText
+                android:id="@+id/edtMobile"
+                android:layout_width="0dp"
+                android:layout_height="55dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_edit"
+                android:hint="98201 44512"
+                android:inputType="phone"
+                android:maxLength="10"
+                android:padding="14dp"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#5E5E8B" />
+        </LinearLayout>
+
+        <!-- Password -->
+        <TextView
+            style="@style/LabelStyle"
+            android:text="PASSWORD" />
+
+        <EditText
+            android:id="@+id/edtPassword"
+            style="@style/EditStyle"
+            android:hint="Min. 8 characters"
+            android:inputType="textPassword"
+            android:drawableEnd="@android:drawable/ic_secure" />
+
+        <!-- Password Strength -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/viewWeak"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#2B2B45"/>
+
+            <View
+                android:id="@+id/viewMedium"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="#2B2B45"/>
+
+            <View
+                android:id="@+id/viewStrong"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:background="#2B2B45"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtStrength"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Password strength"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp"/>
+
+        <!-- Confirm Password -->
+        <TextView
+            style="@style/LabelStyle"
+            android:text="CONFIRM PASSWORD" />
+
+        <EditText
+            android:id="@+id/edtConfirmPassword"
+            style="@style/EditStyle"
+            android:hint="Re-enter password"
+            android:inputType="textPassword"
+            android:drawableEnd="@android:drawable/ic_lock_lock" />
+
+        <!-- Terms -->
+        <CheckBox
+            android:id="@+id/checkTerms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="I agree to the Terms of Service and Privacy Policy"
+            android:textColor="#B0B0D0"
+            android:buttonTint="#7B61FF" />
+
+        <!-- Create Account Button -->
+        <Button
+            android:id="@+id/btnSignup"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_button"
+            android:text="Create Account"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Already member -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:text="already a member?"
+            android:textColor="#6B6B8A"
+            android:textSize="13sp" />
+
+        <!-- Sign In -->
+        <Button
+            android:id="@+id/btnSignin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_outline"
+            android:text="Sign In to Existing Account"
+            android:textAllCaps="false"
+            android:textColor="#B8A7FF"
+            android:textSize="16sp" />
+
+        <!-- Google Button -->
+        <Button
+            android:id="@+id/btnGoogle"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_edit"
+            android:drawableStart="@mipmap/ic_launcher"
+            android:drawablePadding="12dp"
+            android:gravity="center_vertical"
+            android:paddingStart="20dp"
+            android:text="Continue with Google"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

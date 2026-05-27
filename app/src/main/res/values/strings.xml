@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">WealthyMind</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="home_txt">Home</string>
+    <string name="account_txt">Account</string>
+    <string name="category_txt">Category</string>
+
+    <string name="user_name">User Name</string>
+    <string name="email">Email</string>
+    <string name="dob">DOB</string>
+    <string name="btn_save">Save</string>
+    <string name="task_name">Task Name</string>">
+    <string name="task_des">Task Description</string>">
+    <string name="task_date">Select Task Date</string>">
+    <string name="task_pr">Select Task Priority (Optional)</string>">
+    <string name="task_high">High</string>">
+    <string name="task_low">Low</string>">
+    <string name="task_medium">Medium</string>">
+    <string name="save_task">Save Task</string>">
+    <string name="logout">Logout</string>">
+    <string name="task_report">Report</string>">
+
+    <string name="usernameReg">Username</string>
+    <string name="emailReg">Email/Username</string>
+    <string name="passwordReg">Password</string>
+    <string name="sign_upReg">Sign up</string>
+    <string name="sign_inLog">Sign in</string>
+    <string name="signin_redirect">Already a member? Sign in!</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="signup_redirect">Don\'t have an account? Register here!</string>
+
+    <string name="email_req">Enter email/username</string>
+    <string name="pwd_req">Enter password</string>
+
+    <string name="task_duration">Finish Task</string>
+</resources>
