@@ -8,7 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.FirebaseApp
-import com.google.firebase.messaging.FirebaseMessaging
+//import com.google.firebase.messaging.FirebaseMessaging
 import com.sample.mentalhealth.databinding.ActivitySplashBinding
 
 class SplashActivity : AppCompatActivity() {
@@ -43,10 +43,10 @@ class SplashActivity : AppCompatActivity() {
         }, splashDelay)
 
         // Fetch FCM Token
-        fetchFcmToken()
+        //fetchFcmToken()
     }
 
-    private fun fetchFcmToken() {
+    /*private fun fetchFcmToken() {
         try {
             FirebaseMessaging.getInstance().token
                 .addOnCompleteListener { task ->
@@ -64,5 +64,5 @@ class SplashActivity : AppCompatActivity() {
             // This catches the "FirebaseApp not initialized" error if it occurs at runtime
             e.printStackTrace()
         }
-    }
+    }*/
 }

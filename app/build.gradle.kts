@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.google.services)
+    //alias(libs.plugins.google.services)
 }
 
 android {
@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.firebasemessaging)
+    //implementation(libs.firebasemessaging)
 
     val nav_version = "2.8.5"
     val lifecycle_version = "2.4.0"

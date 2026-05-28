@@ -1,3 +1,4 @@
+/*
 package com.sample.mentalhealth
 
 import android.app.NotificationChannel
@@ -45,4 +46,4 @@ class MyFirebaseService : FirebaseMessagingService() {
 
         manager.notify(0, notification)
     }
-}
+}*/
