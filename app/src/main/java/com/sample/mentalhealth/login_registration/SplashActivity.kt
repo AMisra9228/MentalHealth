@@ -10,10 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.FirebaseApp
 //import com.google.firebase.messaging.FirebaseMessaging
 import com.sample.mentalhealth.databinding.ActivitySplashBinding
+import com.sample.mentalhealth.databinding.ActivitySplashNewBinding
 
 class SplashActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySplashBinding
+    private lateinit var binding: ActivitySplashNewBinding
     private val splashDelay: Long = 2500
 
     // FIX: Declare SharedPreferences to resolve the lateinit crash
@@ -28,12 +29,12 @@ class SplashActivity : AppCompatActivity() {
         // 2. Initialize SharedPreferences IMMEDIATELY to prevent UninitializedPropertyAccessException
         sharedPreferences = getSharedPreferences("your_prefs_name", Context.MODE_PRIVATE)
 
-        binding = ActivitySplashBinding.inflate(layoutInflater)
+        binding = ActivitySplashNewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // Setup Lottie
         val lottie = binding.lottieAnimation // Use binding instead of findViewById
-        lottie.setAnimation("time_scedhuling.json")
+        lottie.setAnimation("meditation.json")
         lottie.playAnimation()
 
         // Navigation logic
