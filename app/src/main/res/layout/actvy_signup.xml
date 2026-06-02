@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#090914"
+    android:background="#FFFFFF"
     android:fillViewport="true">
 
     <LinearLayout
@@ -64,8 +64,8 @@
             android:id="@+id/edtUsername"
             style="@style/EditStyle"
             android:hint="Abhi"
-            android:textColorHint="#5E5E8B"
-            android:background="@drawable/bg_edit_selected"
+            android:textColorHint="#0D2B36"
+            android:background="@drawable/bg_edit_new"
             android:drawableEnd="@android:drawable/ic_menu_share" />
 
         <TextView
@@ -104,7 +104,7 @@
                 android:layout_width="100dp"
                 android:layout_height="55dp"
                 android:layout_marginEnd="10dp"
-                android:background="@drawable/bg_edit"
+                android:background="@drawable/bg_edit_new"
                 android:padding="10dp"
                 android:spinnerMode="dropdown" />
 
@@ -113,13 +113,13 @@
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
-                android:background="@drawable/bg_edit"
+                android:background="@drawable/bg_edit_new"
                 android:hint="98201 44512"
                 android:inputType="phone"
                 android:maxLength="10"
                 android:padding="14dp"
-                android:textColor="#FFFFFF"
-                android:textColorHint="#5E5E8B" />
+                android:textColor="#0D2B36"
+                android:textColorHint="#0D2B36" />
         </LinearLayout>
 
         <!-- Password -->
