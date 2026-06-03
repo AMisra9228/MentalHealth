@@ -74,6 +74,7 @@
         app:boxCornerRadiusBottomStart="14dp"
         app:boxCornerRadiusBottomEnd="14dp"
         app:boxBackgroundColor="#E6E9E9"
+        app:hintTextColor="@color/black"
         app:boxStrokeColor="#0ABFBC"
         app:endIconDrawable="@android:drawable/ic_dialog_email"
         app:endIconMode="custom"
@@ -86,7 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Email Address"
-            android:textColor="#0D2B36"
+            android:textColor="#000000"
             android:textSize="14sp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -105,6 +106,7 @@
         app:boxCornerRadiusBottomEnd="14dp"
         app:boxBackgroundColor="#E6E9E9"
         app:boxStrokeColor="#0ABFBC"
+        app:hintTextColor="@color/black"
         app:layout_constraintTop_toBottomOf="@id/emailLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -115,7 +117,7 @@
             android:layout_height="wrap_content"
             android:hint="Password"
             android:inputType="textPassword"
-            android:textColor="#0D2B36"
+            android:textColor="#000000"
             android:textSize="14sp"/>
     </com.google.android.material.textfield.TextInputLayout>
 

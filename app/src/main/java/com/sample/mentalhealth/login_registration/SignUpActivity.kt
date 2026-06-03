@@ -12,9 +12,11 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.sample.mentalhealth.MainActivity
 import com.sample.mentalhealth.MyApp
 import com.sample.mentalhealth.databinding.ActvySignupBinding
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -55,16 +57,6 @@ class SignUpActivity : AppCompatActivity() {
 
         val selectedCode = binding.spinnerCountryCode.selectedItem.toString()
         val mobile = binding.edtMobile.text.toString()
-
-        /*Toast.makeText(
-            this,
-            "$selectedCode $mobile",
-            Toast.LENGTH_SHORT
-        ).show()*/
-
-       /* val lottie = findViewById<LottieAnimationView>(R.id.ivRegLogo)
-        lottie.setAnimation("schedule.json")
-        lottie.playAnimation()*/
 
         viewModel = ViewModelProvider(this).get(UserViewModel::class.java)
 
@@ -120,15 +112,29 @@ class SignUpActivity : AppCompatActivity() {
             } else if (!Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()) {
                 Toast.makeText(this, "Invalid Email", Toast.LENGTH_SHORT).show()
             } else {
-                viewModel.insertUserInfo(this, userName, userEmail, userPassword, locTime)
-                Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show()
-                binding.edtUsername.text?.clear()
-                binding.edtEmail.text?.clear()
-                binding.edtPassword.text?.clear()
+                lifecycleScope.launch {
+                    try {
+                        // Call your suspend functions here
+                        viewModel.insertUserInfo(this@SignUpActivity, userName, userEmail, userPassword, locTime)
+                        val status = viewModel.getUserInfo(this@SignUpActivity, userEmail, userPassword)
 
-                val i = Intent(this, SignInActivity::class.java)
-                startActivity(i)
-                finish()
+                        if (status) { // Assuming getUserInfo returns true on success
+                            Toast.makeText(this@SignUpActivity, "Registration successful", Toast.LENGTH_SHORT).show()
+
+                            binding.edtUsername.text?.clear()
+                            binding.edtEmail.text?.clear()
+                            binding.edtPassword.text?.clear()
+
+                            val i = Intent(this@SignUpActivity, SignInActivity::class.java)
+                            startActivity(i)
+                            finish()
+                        } else {
+                            Toast.makeText(this@SignUpActivity, "Registration failed", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Log.e("Error", "Database Error: ${e.message}")
+                    }
+                }
             }
 
         } catch (e: Exception) {

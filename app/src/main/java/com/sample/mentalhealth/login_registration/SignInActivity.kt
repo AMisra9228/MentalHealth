@@ -3,35 +3,33 @@ package com.sample.mentalhealth.login_registration
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.sample.mentalhealth.MainActivity
+import com.sample.mentalhealth.MyApp
 import com.sample.mentalhealth.R
+import com.sample.mentalhealth.databinding.ActivityLoginNewBinding
+import com.sample.mentalhealth.di.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import androidx.core.content.edit
-import com.sample.mentalhealth.MyApp
-import com.sample.mentalhealth.databinding.ActvySigninBinding
-import com.sample.mentalhealth.di.ViewModelFactory
 import javax.inject.Inject
 
 class SignInActivity : AppCompatActivity() {
-//    private lateinit var binding: ActivitySignInBinding
-//    private lateinit var viewModel: UserViewModel
     lateinit var context: Context
-    var status: Boolean = false
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: UserViewModelNew
 
-    private lateinit var binding: ActvySigninBinding
+    private lateinit var binding: ActivityLoginNewBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActvySigninBinding.inflate(layoutInflater)
+        binding = ActivityLoginNewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         context = this@SignInActivity
@@ -39,7 +37,6 @@ class SignInActivity : AppCompatActivity() {
         // Inject dependencies
         (application as MyApp).appComponent.inject(this)
 
-        //viewModel = ViewModelProvider(this).get(UserViewModel::class.java)
         viewModel = ViewModelProvider(this, viewModelFactory)[UserViewModelNew::class.java]
 
         binding.btnSignIn.setOnClickListener {
@@ -53,27 +50,35 @@ class SignInActivity : AppCompatActivity() {
                 binding.atvPasswordLog.error = getString(R.string.passwordReg)
             } else {
                 lifecycleScope.launch(Dispatchers.Main) {
-                    val isLoggIn: Boolean? = viewModel.getUserInfo(context, userEmail, userPassword)
-                    if (isLoggIn != null) {
-                        status = true
 
-                        val sharedPreferences = getSharedPreferences("UserLog", MODE_PRIVATE)
-                        sharedPreferences.edit {
+                    try {
+                        // Call your suspend functions here
+                        val status = viewModel.getUserInfo(context, userEmail, userPassword)
 
-                            putString("user_name", binding.atvEmailLog.text.toString())
-                            putString("pwd", binding.atvPasswordLog.text.toString())
+                        if (status) { // Assuming getUserInfo returns true on success
+                            val sharedPreferences = getSharedPreferences("UserLog", MODE_PRIVATE)
+                            sharedPreferences.edit {
+                                putString("user_name", binding.atvEmailLog.text.toString().trim())
+                                putString("pwd", binding.atvPasswordLog.text.toString().trim())
+                                apply()
+                            }
+                            Toast.makeText(
+                                this@SignInActivity,
+                                "Login successful",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            val i = Intent(context, MainActivity::class.java)
+                            startActivity(i)
+                            finish()
+                        } else {
+                            Toast.makeText(
+                                this@SignInActivity,
+                                "Invalid Credentials",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-
-                    } else {
-                        status = false
-                    }
-                    if (status) {
-                        Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
-                        val i = Intent(context, MainActivity::class.java)
-                        startActivity(i)
-                        finish()
-                    } else {
-                        Toast.makeText(context, "Invalid Credentials", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Log.e("Error", "Database Error: ${e.message}")
                     }
                 }
             }
