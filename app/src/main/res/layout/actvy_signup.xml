@@ -91,10 +91,12 @@
 
         <!-- Mobile Number -->
         <TextView
+            android:visibility="gone"
             style="@style/LabelStyle"
             android:text="MOBILE NUMBER" />
 
         <LinearLayout
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
