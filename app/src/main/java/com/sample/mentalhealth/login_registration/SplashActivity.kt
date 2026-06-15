@@ -41,7 +41,7 @@ class SplashActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(UserViewModel::class.java)
 
         // Setup Lottie
-        val lottie = binding.lottieAnimation // Use binding instead of findViewById
+        val lottie = binding.lottieAnimation
         lottie.setAnimation("meditation.json")
         lottie.playAnimation()
 
@@ -57,6 +57,7 @@ class SplashActivity : AppCompatActivity() {
                             MainActivity::class.java
                         )
                     )
+                    finish()
                 }, splashDelay)
             } else {
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -66,6 +67,7 @@ class SplashActivity : AppCompatActivity() {
                             SignUpActivity::class.java
                         )
                     )
+                    finish()
                 }, splashDelay)
             }
         }

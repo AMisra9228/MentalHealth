@@ -20,4 +20,8 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="gray">#5b5b5b</color>
+
+    <color name="screen_bg">#080816</color>
+    <color name="primary">#7665FF</color>
+    <color name="card_bg">#111128</color>
 </resources>
