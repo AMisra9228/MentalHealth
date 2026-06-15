@@ -13,4 +13,8 @@ class UserRepository @Inject constructor(
             userDao.getUserByEmailAndPassword(email, password)
         }
     }
+
+    suspend fun getRegisteredUser(): User? {
+        return userDao.getRegisteredUser()
+    }
 }

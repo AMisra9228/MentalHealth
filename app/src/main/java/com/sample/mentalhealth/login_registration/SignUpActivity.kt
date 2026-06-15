@@ -63,10 +63,19 @@ class SignUpActivity : AppCompatActivity() {
         val savedName = sharedPreferences.getString("user_name", "")
         val savedPwd = sharedPreferences.getString("pwd", "")
 
-        if (!savedName.equals("") && !savedPwd.equals("")) {
-            val i = Intent(this, MainActivity::class.java)
-            startActivity(i)
-            finish()
+        lifecycleScope.launch {
+
+            val user = viewModel.getRegisteredUser(this@SignUpActivity)
+
+            if (user != null && (!savedName.equals("") && !savedPwd.equals(""))) {
+                startActivity(
+                    Intent(
+                        this@SignUpActivity,
+                        MainActivity::class.java
+                    )
+                )
+                finish()
+            }
         }
 
         binding.edtPassword.addTextChangedListener(object : TextWatcher {
