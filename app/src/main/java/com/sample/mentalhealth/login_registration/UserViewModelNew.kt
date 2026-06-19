@@ -12,4 +12,8 @@ class UserViewModelNew @Inject constructor(
         val user = repository.getUser(context,email, password)
         return user != null
     }
+
+    suspend fun getUserNameByEmail(email: String): String? {
+        return repository.getUserNameByEmail(email)
+    }
 }
