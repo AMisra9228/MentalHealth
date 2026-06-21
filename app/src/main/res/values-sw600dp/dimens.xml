@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding">28dp</dimen>
+    <dimen name="section_spacing">32dp</dimen>
+    <dimen name="card_radius">20dp</dimen>
+</resources>
