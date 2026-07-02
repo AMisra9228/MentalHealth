@@ -5,14 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.sample.mentalhealth.MyApp
 import com.sample.mentalhealth.databinding.FragmentHomeBinding
 import com.sample.mentalhealth.di.ViewModelFactory
 import com.sample.mentalhealth.login_registration.UserViewModelNew
+import com.sample.mentalhealth.retrofit.RetrofitClient
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +30,10 @@ class HomeFragment : Fragment() {
     private lateinit var userViewModel: UserViewModelNew
 
     private lateinit var operationAdapter: OperationAdapter
+    private lateinit var overviewAdapter: OverviewAdapter
+
+    private lateinit var updatesAdapter: UpcomingUpdatesAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +55,7 @@ class HomeFragment : Fragment() {
             ViewModelProvider(this, viewModelFactory)[UserViewModelNew::class.java]
 
         setupOperations()
+        setupUpcomingUpdates()
         loadLoggedInUser()
 
         return binding.root
@@ -146,5 +154,114 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setupOverviewRecycler() {
+
+        overviewAdapter =
+            OverviewAdapter { item ->
+
+                Toast.makeText(
+                    requireContext(),
+                    item.title,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+        binding.rvOverview.layoutManager =
+            LinearLayoutManager(
+                requireContext(),
+                RecyclerView.HORIZONTAL,
+                false
+            )
+
+        binding.rvOverview.adapter =
+            overviewAdapter
+
+        loadOverviewApi()
+    }
+
+    private fun loadOverviewApi() {
+
+        lifecycleScope.launch {
+
+            try {
+
+                val response =
+                    RetrofitClient.apiService
+                        .getOverviewItems()
+
+                if (response.isSuccessful) {
+
+                    response.body()?.let {
+
+                        overviewAdapter.submitList(it)
+                    }
+                }
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    requireContext(),
+                    e.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun setupUpcomingUpdates() {
+
+        updatesAdapter = UpcomingUpdatesAdapter(
+            mutableListOf()
+        ) { item ->
+
+            Toast.makeText(
+                requireContext(),
+                item.title,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        binding.rvUpcomingUpdates.apply {
+
+            layoutManager = LinearLayoutManager(
+                requireContext(),
+                RecyclerView.HORIZONTAL,
+                false
+            )
+
+            adapter = updatesAdapter
+            setHasFixedSize(true)
+        }
+
+        val updates = listOf(
+            UpcomingUpdate(
+                "AI Mood Tracker",
+                "Track user mood automatically using AI insights."
+            ),
+            UpcomingUpdate(
+                "Dark Mode Support",
+                "Complete dark theme support will be added."
+            ),
+            UpcomingUpdate(
+                "Daily Reminders",
+                "Users can configure daily mental wellness reminders."
+            ),
+            UpcomingUpdate(
+                "Report Download",
+                "PDF report download functionality for counsellors."
+            ),
+            UpcomingUpdate(
+                "Chat Support",
+                "In-app secure chat between counsellor and patient."
+            ),
+            UpcomingUpdate(
+                "Cloud Backup",
+                "Automatic cloud backup and restore feature."
+            )
+        )
+
+        updatesAdapter.submitList(updates)
     }
 }

@@ -7,12 +7,20 @@ import com.bumptech.glide.Glide
 import com.sample.mentalhealth.databinding.ItemOverviewBinding
 
 class OverviewAdapter(
-    private val list: List<OverviewItem>,
     private val listener: (OverviewItem) -> Unit
 ) : RecyclerView.Adapter<OverviewAdapter.ViewHolder>() {
 
-    inner class ViewHolder(val binding: ItemOverviewBinding)
-        : RecyclerView.ViewHolder(binding.root)
+    private val list = ArrayList<OverviewItem>()
+
+    fun submitList(data: List<OverviewItem>) {
+        list.clear()
+        list.addAll(data)
+        notifyDataSetChanged()
+    }
+
+    inner class ViewHolder(
+        val binding: ItemOverviewBinding
+    ) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -41,10 +49,10 @@ class OverviewAdapter(
             .load(item.image)
             .into(holder.binding.imgOverview)
 
-        holder.binding.imgOverview.setOnClickListener {
+        holder.binding.root.setOnClickListener {
             listener(item)
         }
     }
 
-    override fun getItemCount() = list.size
+    override fun getItemCount(): Int = list.size
 }

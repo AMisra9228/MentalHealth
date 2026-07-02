@@ -101,6 +101,11 @@ dependencies {
 //    implementation("com.google.dagger:hilt-android:2.48")
 //    kapt("com.google.dagger:hilt-android-compiler:2.48")
 
+    //implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.2")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
     implementation("com.google.dagger:dagger:2.51.1")
     kapt("com.google.dagger:dagger-compiler:2.51.1")
 
