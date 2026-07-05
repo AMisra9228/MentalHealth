@@ -112,6 +112,8 @@ dependencies {
     implementation("com.airbnb.android:lottie:6.4.0")
     implementation("de.hdodenhof:circleimageview:3.1.0")
 
+    implementation(files("libs/tictactoe.aar"))
+
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.kotlintest)

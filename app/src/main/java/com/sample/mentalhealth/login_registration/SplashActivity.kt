@@ -1,6 +1,5 @@
 package com.sample.mentalhealth.login_registration
 
-//import com.google.firebase.messaging.FirebaseMessaging
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
