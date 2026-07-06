@@ -1,5 +1,7 @@
 package com.sample.mentalhealth.login_registration
 
+import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -8,203 +10,243 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.util.Patterns
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.sample.mentalhealth.MainActivity
 import com.sample.mentalhealth.MyApp
+import com.sample.mentalhealth.R
+import com.sample.mentalhealth.common.PasswordStrength
 import com.sample.mentalhealth.databinding.ActvySignupBinding
+import com.sample.mentalhealth.login_registration.viewmodel.SignupState
+import com.sample.mentalhealth.login_registration.viewmodel.SignupViewModel
+import com.sample.mentalhealth.mvpdemo.contract.LoginContract
+import com.sample.mentalhealth.mvpdemo.view.LoginActivity
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
+import kotlin.jvm.java
 
 class SignUpActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
-
     private lateinit var binding: ActvySignupBinding
-    private lateinit var viewModel: UserViewModel
-    private var locTime: String = ""
+    private val viewModel: SignupViewModel by viewModels()
 
-    val countryCodes = arrayOf(
-        "🇮🇳 +91",
-        "🇺🇸 +1",
-        "🇬🇧 +44",
-        "🇦🇺 +61",
-        "🇨🇦 +1",
-        "🇩🇪 +49",
-        "🇫🇷 +33",
-        "🇯🇵 +81"
-    )
+    private val calendar = Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        (application as MyApp).appComponent.inject(this)
-
         super.onCreate(savedInstanceState)
+
+        // Initialize ViewBinding
         binding = ActvySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            countryCodes
-        )
-
-        binding.spinnerCountryCode.adapter = adapter
-
-        val selectedCode = binding.spinnerCountryCode.selectedItem.toString()
-        val mobile = binding.edtMobile.text.toString()
-
-        viewModel = ViewModelProvider(this).get(UserViewModel::class.java)
-
-        val savedName = sharedPreferences.getString("user_name", "")
-        val savedPwd = sharedPreferences.getString("pwd", "")
-
-        lifecycleScope.launch {
-
-            val user = viewModel.getRegisteredUser(this@SignUpActivity)
-
-            if (user != null && (!savedName.equals("") && !savedPwd.equals(""))) {
-                startActivity(
-                    Intent(
-                        this@SignUpActivity,
-                        MainActivity::class.java
-                    )
-                )
-                finish()
-            }
-        }
-
-        binding.edtPassword.addTextChangedListener(object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                checkPasswordStrength(s.toString())
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        binding.btnSignup.setOnClickListener {
-            saveUserInfo()
-        }
-
-        binding.btnSignin.setOnClickListener {
-            val i = Intent(this, SignInActivity::class.java)
-            startActivity(i)
-            finish()
-        }
+        setupObservers()
+        setupListeners()
     }
 
-
-    private fun saveUserInfo() {
-        try {
-            val userName = binding.edtUsername.text.toString()
-            val userEmail = binding.edtEmail.text.toString()
-            val userPassword = binding.edtPassword.text.toString()
-
-            val c = Calendar.getInstance()
-            val year = c.get(Calendar.YEAR)
-            val month = c.get(Calendar.MONTH) + 1 // Calendar.MONTH is 0-based
-            val day = c.get(Calendar.DAY_OF_MONTH)
-            val hour = c.get(Calendar.HOUR_OF_DAY)
-            val minute = c.get(Calendar.MINUTE)
-            locTime = "$day-$month-$year $hour:$minute"
-
-            if (userName.isEmpty() || userEmail.isEmpty() || userPassword.isEmpty()) {
-                Toast.makeText(this, "Enter all details", Toast.LENGTH_SHORT).show()
-            } else if (!Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()) {
-                Toast.makeText(this, "Invalid Email", Toast.LENGTH_SHORT).show()
-            } else {
-                lifecycleScope.launch {
-                    try {
-                        // Call your suspend functions here
-                        viewModel.insertUserInfo(this@SignUpActivity, userName, userEmail, userPassword, locTime)
-                        val status = viewModel.getUserInfo(this@SignUpActivity, userEmail, userPassword)
-
-                        if (status) { // Assuming getUserInfo returns true on success
-                            Toast.makeText(this@SignUpActivity, "Registration successful", Toast.LENGTH_SHORT).show()
-
-                            binding.edtUsername.text?.clear()
-                            binding.edtEmail.text?.clear()
-                            binding.edtPassword.text?.clear()
-
-                            val i = Intent(this@SignUpActivity, SignInActivity::class.java)
-                            startActivity(i)
-                            finish()
-                        } else {
-                            Toast.makeText(this@SignUpActivity, "Registration failed", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Log.e("Error", "Database Error: ${e.message}")
-                    }
+    private fun setupObservers() {
+        // --- Signup State ---
+        viewModel.signupState.observe(this) { state ->
+            when (state) {
+                is SignupState.Idle -> {
+                    binding.btnSignup.isEnabled = true
+                    binding.btnSignup.text = "Create Account"
+                }
+                is SignupState.Loading -> {
+                    binding.btnSignup.isEnabled = false
+                    binding.btnSignup.text = "Creating Account..."
+                }
+                is SignupState.Success -> {
+                    binding.btnSignup.isEnabled = true
+                    binding.btnSignup.text = "Create Account"
+                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
+                    // Navigate to login or home screen
+                    // startActivity(Intent(this, LoginActivity::class.java))
+                    //finish()
+                }
+                is SignupState.Error -> {
+                    binding.btnSignup.isEnabled = true
+                    binding.btnSignup.text = "Create Account"
+                    Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetState()
                 }
             }
+        }
 
-        } catch (e: Exception) {
-            Log.e("Error", "Error: ${e.message}")
+        // --- Field Errors ---
+        viewModel.fullNameError.observe(this) { error ->
+            binding.edtName.error = error
+        }
+
+        viewModel.usernameError.observe(this) { error ->
+            binding.edtUsername.error = error
+        }
+
+        viewModel.emailError.observe(this) { error ->
+            binding.edtEmail.error = error
+        }
+
+        viewModel.dobError.observe(this) { error ->
+            if (error != null) {
+                binding.edtDob.error = error
+                binding.edtDob.requestFocus()
+            }
+        }
+
+        viewModel.genderError.observe(this) { error ->
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        viewModel.passwordError.observe(this) { error ->
+            binding.edtPassword.error = error
+        }
+
+        viewModel.confirmPasswordError.observe(this) { error ->
+            binding.edtConfirmPassword.error = error
+        }
+
+        viewModel.termsError.observe(this) { error ->
+            if (error != null) {
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // --- Password Strength ---
+        viewModel.passwordStrength.observe(this) { strength ->
+            updatePasswordStrengthUI(strength)
         }
     }
 
-    private fun checkPasswordStrength(password: String) {
+    private fun setupListeners() {
 
-        // Reset colors
-        binding.viewWeak.setBackgroundColor(Color.parseColor("#2B2B45"))
-        binding.viewMedium.setBackgroundColor(Color.parseColor("#2B2B45"))
-        binding.viewStrong.setBackgroundColor(Color.parseColor("#2B2B45"))
-
-        // Strong Password Regex
-        val strongRegex =
-            Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#\$%^&+=!]).{8,}$")
-
-        // Medium Password Regex
-        val mediumRegex =
-            Regex("^(?=.*[A-Za-z])(?=.*\\d).{6,}$")
-
-        when {
-
-            // Weak
-            password.length < 6 -> {
-
-                binding.viewWeak.setBackgroundColor(Color.RED)
-
-                binding.txtStrength.text = "Weak Password"
-                binding.txtStrength.setTextColor(Color.RED)
+        // Password strength real-time
+        binding.edtPassword.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.updatePasswordStrength(s.toString())
             }
+        })
 
-            // Strong → GREEN
-            strongRegex.matches(password) -> {
+        // Date of birth — show DatePicker
+        binding.edtDob.setOnClickListener {
+            showDatePicker()
+        }
 
-                binding.viewWeak.setBackgroundColor(Color.RED)
-                binding.viewMedium.setBackgroundColor(Color.YELLOW)
-                binding.viewStrong.setBackgroundColor(Color.GREEN)
+        // Create Account
+        binding.btnSignup.setOnClickListener {
+            hideKeyboard()
 
-                binding.txtStrength.text = "Strong Password"
-                binding.txtStrength.setTextColor(Color.GREEN)
+            val fullName = binding.edtName.text.toString()
+            val username = binding.edtUsername.text.toString()
+            val email = binding.edtEmail.text.toString()
+            val dob = binding.edtDob.text.toString()
+            val genderId = binding.rgGender.checkedRadioButtonId
+            val genderText = if (genderId != -1) {
+                findViewById<RadioButton>(genderId).text.toString()
+            } else ""
+
+            val password = binding.edtPassword.text.toString()
+            val confirmPassword = binding.edtConfirmPassword.text.toString()
+            val termsChecked = binding.checkTerms.isChecked
+
+            viewModel.validateAndSignup(
+                fullName = fullName,
+                username = username,
+                email = email,
+                dob = dob,
+                genderId = genderId,
+                genderText = genderText,
+                password = password,
+                confirmPassword = confirmPassword,
+                termsChecked = termsChecked
+            )
+        }
+
+        // Sign In
+        binding.btnSignin.setOnClickListener {
+            startActivity(Intent(this, SignInActivity::class.java))
+            finish()
+        }
+
+        // Google Sign-In
+        binding.btnGoogle.setOnClickListener {
+            Toast.makeText(this, "Google sign-in not implemented yet", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showDatePicker() {
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        DatePickerDialog(
+            this,
+            { _, selectedYear, selectedMonth, selectedDay ->
+                // Format as YYYY-MM-DD
+                val formatted = String.format(
+                    "%04d-%02d-%02d",
+                    selectedYear, selectedMonth + 1, selectedDay
+                )
+                binding.edtDob.setText(formatted)
+            },
+            year, month, day
+        ).apply {
+            datePicker.maxDate = System.currentTimeMillis()
+            show()
+        }
+    }
+
+    private fun updatePasswordStrengthUI(strength: PasswordStrength) {
+        binding.txtStrength.text = strength.label
+
+        val colorWeak = Color.parseColor("#2B2B45")
+        val colorRed = Color.parseColor("#FF3B30")
+        val colorOrange = Color.parseColor("#FF9500")
+        val colorGreen = Color.parseColor("#34C759")
+
+        when (strength) {
+            PasswordStrength.NONE -> {
+                binding.viewWeak.setBackgroundColor(colorWeak)
+                binding.viewMedium.setBackgroundColor(colorWeak)
+                binding.viewStrong.setBackgroundColor(colorWeak)
             }
-
-            // Medium
-            mediumRegex.matches(password) -> {
-
-                binding.viewWeak.setBackgroundColor(Color.RED)
-                binding.viewMedium.setBackgroundColor(Color.YELLOW)
-
-                binding.txtStrength.text = "Medium Password"
-                binding.txtStrength.setTextColor(Color.YELLOW)
+            PasswordStrength.WEAK -> {
+                binding.viewWeak.setBackgroundColor(colorRed)
+                binding.viewMedium.setBackgroundColor(colorWeak)
+                binding.viewStrong.setBackgroundColor(colorWeak)
+                binding.txtStrength.setTextColor(colorRed)
             }
-
-            else -> {
-
-                binding.viewWeak.setBackgroundColor(Color.RED)
-
-                binding.txtStrength.text = "Weak Password"
-                binding.txtStrength.setTextColor(Color.RED)
+            PasswordStrength.MEDIUM -> {
+                binding.viewWeak.setBackgroundColor(colorOrange)
+                binding.viewMedium.setBackgroundColor(colorOrange)
+                binding.viewStrong.setBackgroundColor(colorWeak)
+                binding.txtStrength.setTextColor(colorOrange)
+            }
+            PasswordStrength.STRONG -> {
+                binding.viewWeak.setBackgroundColor(colorGreen)
+                binding.viewMedium.setBackgroundColor(colorGreen)
+                binding.viewStrong.setBackgroundColor(colorGreen)
+                binding.txtStrength.setTextColor(colorGreen)
             }
         }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.btnSignup.windowToken, 0)
     }
 }
