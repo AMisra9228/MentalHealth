@@ -121,7 +121,20 @@
             android:textSize="14sp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Forgot Password -->
+    <!-- Remember Me & Forgot Password Row -->
+    <CheckBox
+        android:id="@+id/cbRememberMe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remember Me"
+        android:textColor="#6B7E8A"
+        android:textSize="13sp"
+        android:buttonTint="#0ABFBC"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintTop_toBottomOf="@id/passwordLayout"
+        app:layout_constraintStart_toStartOf="parent"/>
+
     <TextView
         android:id="@+id/tvForgotPass"
         android:layout_width="wrap_content"
@@ -133,7 +146,8 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="24dp"
         app:layout_constraintTop_toBottomOf="@id/passwordLayout"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/cbRememberMe"/>
 
     <!-- Sign In Button -->
     <Button
@@ -146,9 +160,9 @@
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:background="@drawable/bg_button"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:layout_marginHorizontal="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tvForgotPass"
+        app:layout_constraintTop_toBottomOf="@id/cbRememberMe"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -165,6 +179,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Social Login Buttons Row -->
     <ImageView
         android:id="@+id/btnGoogle"
         android:layout_width="0dp"
@@ -172,10 +187,25 @@
         android:src="@drawable/icgoogle"
         android:background="@drawable/bg_outline"
         android:layout_marginTop="24dp"
-        android:layout_marginHorizontal="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="6dp"
         android:padding="5dp"
         app:layout_constraintTop_toBottomOf="@id/continueWith"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnFacebook"/>
+
+    <ImageView
+        android:id="@+id/btnFacebook"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:src="@drawable/fb"
+        android:background="@drawable/bg_outline"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="24dp"
+        android:padding="5dp"
+        app:layout_constraintTop_toBottomOf="@id/continueWith"
+        app:layout_constraintStart_toEndOf="@id/btnGoogle"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Bottom Sign Up -->
