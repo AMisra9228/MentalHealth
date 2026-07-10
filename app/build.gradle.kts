@@ -76,6 +76,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     implementation("commons-net:commons-net:3.3")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
@@ -116,6 +117,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     implementation(files("libs/tictactoe.aar"))
+
+    implementation("androidx.activity:activity-ktx:1.8.2")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)

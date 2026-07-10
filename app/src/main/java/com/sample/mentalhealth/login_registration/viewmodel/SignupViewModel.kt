@@ -83,10 +83,12 @@ class SignupViewModel : ViewModel() {
         if (username.isBlank()) {
             _usernameError.value = "Username is required"
             isValid = false
-        } else if (!ValidationUtils.isValidUsername(username)) {
+        }
+        /*else if (!ValidationUtils.isValidUsername(username)) {
             _usernameError.value = "Min 3 chars, letters/numbers/_/. only"
             isValid = false
-        } else {
+        }*/
+        else {
             _usernameError.value = null
         }
 

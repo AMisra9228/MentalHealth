@@ -5,6 +5,8 @@ import java.util.Calendar
 
 object ValidationUtils {
 
+    private val EMAIL_REGEX = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+
     fun isValidFullName(name: String): Boolean {
         val trimmed = name.trim()
         return trimmed.length >= 3 && trimmed.matches(Regex("^[a-zA-Z]+(?:\\s[a-zA-Z]+)+$"))
@@ -17,6 +19,10 @@ object ValidationUtils {
 
     fun isValidEmail(email: String): Boolean {
         return Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()
+    }
+
+    fun isValidEmailCheck(email: String): Boolean {
+        return email.isNotBlank() && EMAIL_REGEX.matches(email.trim())
     }
 
     fun isValidDob(dob: String): Boolean {
@@ -58,6 +64,16 @@ object ValidationUtils {
             score <= 2 -> PasswordStrength.WEAK
             score == 3 -> PasswordStrength.MEDIUM
             else -> PasswordStrength.STRONG
+        }
+    }
+
+    fun validateSignIn(email: String, password: String): String? {
+        return when {
+            email.isBlank() -> "Please enter your email"
+            !isValidUsername(email) -> "Please enter a valid email"
+            password.isBlank() -> "Please enter your password"
+            !isValidPassword(password) -> "Password must be at least 6 characters"
+            else -> null
         }
     }
 }

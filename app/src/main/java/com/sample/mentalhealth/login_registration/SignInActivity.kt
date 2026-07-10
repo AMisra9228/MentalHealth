@@ -1,97 +1,149 @@
 package com.sample.mentalhealth.login_registration
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.core.widget.doAfterTextChanged
 import com.sample.mentalhealth.MainActivity
-import com.sample.mentalhealth.MyApp
-import com.sample.mentalhealth.R
+import com.sample.mentalhealth.common.SessionManager
 import com.sample.mentalhealth.databinding.ActivityLoginNewBinding
-import com.sample.mentalhealth.di.ViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import com.sample.mentalhealth.home.HomeFragment
+import com.sample.mentalhealth.login_registration.viewmodel.AuthViewModel
+import com.sample.mentalhealth.login_registration.viewmodel.AuthViewModelFactory
+import com.sample.mentalhealth.login_registration.repository.AuthRepository
+
 
 class SignInActivity : AppCompatActivity() {
-    lateinit var context: Context
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    private lateinit var viewModel: UserViewModelNew
 
     private lateinit var binding: ActivityLoginNewBinding
+    private lateinit var sessionManager: SessionManager
+
+    private val viewModel: AuthViewModel by viewModels {
+        AuthViewModelFactory(AuthRepository())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize SessionManager first to check login status
+        sessionManager = SessionManager(this)
+
+        // Skip if already logged in
+        if (sessionManager.isLoggedIn()) {
+            navigateToHome()
+            finish()
+            return // Stop further execution since we are navigating away
+        }
+
         binding = ActivityLoginNewBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        context = this@SignInActivity
+        setupListeners()
+        observeViewModel()
+        preFillRememberedEmail()
+    }
 
-        // Inject dependencies
-        (application as MyApp).appComponent.inject(this)
-
-        viewModel = ViewModelProvider(this, viewModelFactory)[UserViewModelNew::class.java]
-
+    private fun setupListeners() {
+        // Sign In button
         binding.btnSignIn.setOnClickListener {
+            val email = binding.atvEmailLog.text.toString().trim()
+            val password = binding.atvPasswordLog.text.toString().trim()
+            val rememberMe = binding.cbRememberMe.isChecked
 
-            val userEmail = binding.atvEmailLog.text.toString()
-            val userPassword = binding.atvPasswordLog.text.toString()
+            viewModel.signIn(email, password, rememberMe)
+        }
 
-            if (binding.atvEmailLog.text.toString().isEmpty()) {
-                binding.atvEmailLog.error = getString(R.string.email_req)
-            } else if (binding.atvPasswordLog.text.toString().isEmpty()) {
-                binding.atvPasswordLog.error = getString(R.string.passwordReg)
-            } else {
-                lifecycleScope.launch(Dispatchers.Main) {
+        // Forgot password
+        binding.tvForgotPass.setOnClickListener {
+            Toast.makeText(this, "Forgot Password clicked", Toast.LENGTH_SHORT).show()
+            // startActivity(Intent(this, ForgotPasswordActivity::class.java))
+        }
 
-                    try {
-                        // Call your suspend functions here
-                        val status = viewModel.getUserInfo(context, userEmail, userPassword)
+        // Sign Up
+        binding.tvSignUp.setOnClickListener {
+            // startActivity(Intent(this, SignUpActivity::class.java))
+            Toast.makeText(this, "Navigate to Sign Up", Toast.LENGTH_SHORT).show()
+        }
 
-                        if (status) { // Assuming getUserInfo returns true on success
-                            val sharedPreferences = getSharedPreferences("UserLog", MODE_PRIVATE)
-                            sharedPreferences.edit {
-                                putString("user_name", binding.atvEmailLog.text.toString().trim())
-                                putString("pwd", binding.atvPasswordLog.text.toString().trim())
-                                apply()
-                            }
-                            Toast.makeText(
-                                this@SignInActivity,
-                                "Login successful",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            val i = Intent(context, MainActivity::class.java)
-                            startActivity(i)
-                            finish()
-                        } else {
-                            Toast.makeText(
-                                this@SignInActivity,
-                                "Invalid Credentials",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    } catch (e: Exception) {
-                        Log.e("Error", "Database Error: ${e.message}")
-                    }
-                }
+        // Google
+        binding.btnGoogle.setOnClickListener {
+            Toast.makeText(this, "Google Sign-In", Toast.LENGTH_SHORT).show()
+            // TODO: Initiate GoogleSignIn flow
+        }
+
+        // Facebook
+        binding.btnFacebook.setOnClickListener {
+            Toast.makeText(this, "Facebook Sign-In", Toast.LENGTH_SHORT).show()
+            // TODO: Initiate Facebook Login flow
+        }
+
+        // Clear validation error on text change (Cleaned up using KTX extensions)
+        binding.atvEmailLog.doAfterTextChanged { viewModel.clearValidationError() }
+        binding.atvPasswordLog.doAfterTextChanged { viewModel.clearValidationError() }
+    }
+
+    private fun observeViewModel() {
+        // Loading state
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.btnSignIn.isEnabled = !isLoading
+            binding.btnSignIn.text = if (isLoading) "Signing In..." else "Sign In"
+        }
+
+        // Validation error
+        viewModel.validationError.observe(this) { error ->
+            error?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
         }
 
-        binding.tvSignUp.setOnClickListener {
-            val i = Intent(context, SignUpActivity::class.java)
-            startActivity(i)
-        }
+        // Sign-in result
+        viewModel.signInResult.observe(this) { state ->
+            when (state) {
+                is AuthViewModel.ResultState.Loading -> {
+                    // Already handled by isLoading
+                }
+                is AuthViewModel.ResultState.Success -> {
+                    // We don't even need to explicitly declare 'val user: User' anymore.
+                    // Kotlin smart-casts 'state.data' to User automatically.
+                    val user = state.data
+                    val rememberMe = state.rememberMe
 
-        binding.tvForgotPass.setOnClickListener {
-            val i = Intent(context, ResetActivity::class.java)
-            startActivity(i)
+                    // Save session
+                    sessionManager.saveUserSession(
+                        token = user.token,
+                        userId = user.id,
+                        username = user.username,
+                        email = user.email,
+                        rememberMe = rememberMe
+                    )
+
+                    // Save remembered email
+                    sessionManager.saveRememberedEmail(user.email, rememberMe)
+
+                    Toast.makeText(this, "Welcome ${user.username}!", Toast.LENGTH_SHORT).show()
+                    navigateToHome()
+                    finish()
+                }
+
+                is AuthViewModel.ResultState.Error -> {
+                    Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                }
+            }
         }
+    }
+
+    private fun preFillRememberedEmail() {
+        sessionManager.getRememberedEmail()?.let { email ->
+            binding.atvEmailLog.setText(email)
+            binding.cbRememberMe.isChecked = true
+        }
+    }
+
+    private fun navigateToHome() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        Toast.makeText(this, "Navigate to Home Screen", Toast.LENGTH_SHORT).show()
     }
 }

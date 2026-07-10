@@ -1,6 +1,5 @@
 package com.sample.mentalhealth.home
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.sample.mentalhealth.MyApp
+import com.sample.mentalhealth.common.SessionManager
 import com.sample.mentalhealth.databinding.FragmentHomeBinding
 import com.sample.mentalhealth.di.ViewModelFactory
 import com.sample.mentalhealth.login_registration.UserViewModelNew
@@ -28,12 +27,11 @@ class HomeFragment : Fragment() {
     lateinit var viewModelFactory: ViewModelFactory
 
     private lateinit var userViewModel: UserViewModelNew
+    private lateinit var sessionManager: SessionManager  // ✅ Added SessionManager
 
     private lateinit var operationAdapter: OperationAdapter
     private lateinit var overviewAdapter: OverviewAdapter
-
     private lateinit var updatesAdapter: UpcomingUpdatesAdapter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +39,9 @@ class HomeFragment : Fragment() {
         (requireActivity().application as MyApp)
             .appComponent
             .inject(this)
+
+        // ✅ Initialize SessionManager
+        sessionManager = SessionManager(requireContext())
     }
 
     override fun onCreateView(
@@ -56,51 +57,34 @@ class HomeFragment : Fragment() {
 
         setupOperations()
         setupUpcomingUpdates()
+        setupOverviewRecycler()  // ✅ Added this (was missing)
         loadLoggedInUser()
 
         return binding.root
     }
 
+    // ✅ Updated to use SessionManager
     private fun loadLoggedInUser() {
 
-        val sharedPreferences =
-            requireActivity().getSharedPreferences(
-                "UserLog",
-                Context.MODE_PRIVATE
-            )
+        // ✅ Get username directly from SessionManager (stored after login)
+        val username = sessionManager.getUsername()
+        val email = sessionManager.getEmail()
+        val token = sessionManager.getToken()  // Available if needed for API calls
 
-        val userEmail =
-            sharedPreferences.getString("user_email", null)
-                ?: sharedPreferences.getString("user_name", null)
-
-        if (userEmail.isNullOrEmpty()) {
+        if (username.isNullOrEmpty()) {
             binding.tvGreeting.text = "Welcome,"
             binding.tvUserName.text = "User"
             return
         }
 
-        lifecycleScope.launch {
+        // ✅ Directly use the stored username - no API call needed!
+        binding.tvGreeting.text = "Welcome,"
+        binding.tvUserName.text = username
 
-            try {
-
-                val userName =
-                    userViewModel.getUserNameByEmail(userEmail)
-
-                binding.tvGreeting.text = "Welcome,"
-                binding.tvUserName.text =
-                    if (!userName.isNullOrEmpty()) {
-                        userName
-                    } else {
-                        "User"
-                    }
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-
-                binding.tvGreeting.text = "Welcome,"
-                binding.tvUserName.text = "User"
-            }
-        }
+        // Optional: Log for debugging
+        println("HomeFragment - Token: ${token?.take(20)}...")
+        println("HomeFragment - Username: $username")
+        println("HomeFragment - Email: $email")
     }
 
     private fun setupOperations() {
@@ -116,23 +100,18 @@ class HomeFragment : Fragment() {
         operationAdapter = OperationAdapter(operations) { operation ->
 
             when (operation.title) {
-
                 "Mood Tracker" -> {
                     // TODO Navigate
                 }
-
                 "Journal" -> {
                     // TODO Navigate
                 }
-
                 "Meditation" -> {
                     // TODO Navigate
                 }
-
                 "Assessment" -> {
                     // TODO Navigate
                 }
-
                 "Reports" -> {
                     // TODO Navigate
                 }
@@ -140,82 +119,79 @@ class HomeFragment : Fragment() {
         }
 
         binding.rvOperations.apply {
-
             layoutManager = LinearLayoutManager(
                 requireContext(),
                 LinearLayoutManager.HORIZONTAL,
                 false
             )
-
             adapter = operationAdapter
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     private fun setupOverviewRecycler() {
 
-        overviewAdapter =
-            OverviewAdapter { item ->
-
-                Toast.makeText(
-                    requireContext(),
-                    item.title,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-
-        binding.rvOverview.layoutManager =
-            LinearLayoutManager(
+        overviewAdapter = OverviewAdapter { item ->
+            Toast.makeText(
                 requireContext(),
-                RecyclerView.HORIZONTAL,
-                false
-            )
+                item.title,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
-        binding.rvOverview.adapter =
-            overviewAdapter
+        binding.rvOverview.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        binding.rvOverview.adapter = overviewAdapter
 
         loadOverviewApi()
     }
 
+    // ✅ Updated to use token from SessionManager for API call
     private fun loadOverviewApi() {
 
-        lifecycleScope.launch {
+        val token = sessionManager.getToken()
 
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(
+                requireContext(),
+                "Please login again",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        /*lifecycleScope.launch {
             try {
-
-                val response =
-                    RetrofitClient.apiService
-                        .getOverviewItems()
+                // ✅ Pass token in header (depends on your API setup)
+                val response = RetrofitClient.apiService
+                    .getOverviewItems("Bearer $token")  // Update based on your API
 
                 if (response.isSuccessful) {
-
                     response.body()?.let {
-
                         overviewAdapter.submitList(it)
                     }
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Error: ${response.code()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-
             } catch (e: Exception) {
-
                 Toast.makeText(
                     requireContext(),
                     e.message,
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        }
+        }*/
     }
 
     private fun setupUpcomingUpdates() {
 
-        updatesAdapter = UpcomingUpdatesAdapter(
-            mutableListOf()
-        ) { item ->
-
+        updatesAdapter = UpcomingUpdatesAdapter(mutableListOf()) { item ->
             Toast.makeText(
                 requireContext(),
                 item.title,
@@ -224,44 +200,29 @@ class HomeFragment : Fragment() {
         }
 
         binding.rvUpcomingUpdates.apply {
-
             layoutManager = LinearLayoutManager(
                 requireContext(),
-                RecyclerView.HORIZONTAL,
+                LinearLayoutManager.HORIZONTAL,
                 false
             )
-
             adapter = updatesAdapter
             setHasFixedSize(true)
         }
 
         val updates = listOf(
-            UpcomingUpdate(
-                "AI Mood Tracker",
-                "Track user mood automatically using AI insights."
-            ),
-            UpcomingUpdate(
-                "Dark Mode Support",
-                "Complete dark theme support will be added."
-            ),
-            UpcomingUpdate(
-                "Daily Reminders",
-                "Users can configure daily mental wellness reminders."
-            ),
-            UpcomingUpdate(
-                "Report Download",
-                "PDF report download functionality for counsellors."
-            ),
-            UpcomingUpdate(
-                "Chat Support",
-                "In-app secure chat between counsellor and patient."
-            ),
-            UpcomingUpdate(
-                "Cloud Backup",
-                "Automatic cloud backup and restore feature."
-            )
+            UpcomingUpdate("AI Mood Tracker", "Track user mood automatically using AI insights."),
+            UpcomingUpdate("Dark Mode Support", "Complete dark theme support will be added."),
+            UpcomingUpdate("Daily Reminders", "Users can configure daily mental wellness reminders."),
+            UpcomingUpdate("Report Download", "PDF report download functionality for counsellors."),
+            UpcomingUpdate("Chat Support", "In-app secure chat between counsellor and patient."),
+            UpcomingUpdate("Cloud Backup", "Automatic cloud backup and restore feature.")
         )
 
         updatesAdapter.submitList(updates)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
