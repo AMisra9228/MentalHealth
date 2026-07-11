@@ -43,7 +43,7 @@ class SessionManager(context: Context) {
         }
     }
 
-    fun logout() {
+    fun clearSession() {
         prefs.edit().clear().apply()
     }
 

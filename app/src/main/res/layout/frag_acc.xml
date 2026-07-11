@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#050510"
-    tools:context="account.AccountFragment">
+    tools:context="com.sample.mentalhealth.account.AccountFragment">
 
     <!-- Main Scroll -->
     <ScrollView

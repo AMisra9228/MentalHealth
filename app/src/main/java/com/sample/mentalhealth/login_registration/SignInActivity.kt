@@ -58,13 +58,13 @@ class SignInActivity : AppCompatActivity() {
         // Forgot password
         binding.tvForgotPass.setOnClickListener {
             Toast.makeText(this, "Forgot Password clicked", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, ForgotPasswordActivity::class.java))
+//             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
 
         // Sign Up
         binding.tvSignUp.setOnClickListener {
-            // startActivity(Intent(this, SignUpActivity::class.java))
-            Toast.makeText(this, "Navigate to Sign Up", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, SignUpActivity::class.java))
+            //Toast.makeText(this, "Navigate to Sign Up", Toast.LENGTH_SHORT).show()
         }
 
         // Google
@@ -87,6 +87,7 @@ class SignInActivity : AppCompatActivity() {
     private fun observeViewModel() {
         // Loading state
         viewModel.isLoading.observe(this) { isLoading ->
+            android.util.Log.d("AUTH_DEBUG", "Is Loading: $isLoading")
             binding.btnSignIn.isEnabled = !isLoading
             binding.btnSignIn.text = if (isLoading) "Signing In..." else "Sign In"
         }
@@ -94,23 +95,26 @@ class SignInActivity : AppCompatActivity() {
         // Validation error
         viewModel.validationError.observe(this) { error ->
             error?.let {
+                android.util.Log.e("AUTH_DEBUG", "Validation Error: $it")
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
         }
 
         // Sign-in result
         viewModel.signInResult.observe(this) { state ->
+
+            // ✅ ADD THESE LOGS TO SEE WHAT'S HAPPENING
+            android.util.Log.d("AUTH_DEBUG", "State received: $state")
+
             when (state) {
                 is AuthViewModel.ResultState.Loading -> {
-                    // Already handled by isLoading
+                    android.util.Log.d("AUTH_DEBUG", "State: Loading")
                 }
                 is AuthViewModel.ResultState.Success -> {
-                    // We don't even need to explicitly declare 'val user: User' anymore.
-                    // Kotlin smart-casts 'state.data' to User automatically.
+                    android.util.Log.d("AUTH_DEBUG", "State: Success - Saving Session")
                     val user = state.data
                     val rememberMe = state.rememberMe
 
-                    // Save session
                     sessionManager.saveUserSession(
                         token = user.token,
                         userId = user.id,
@@ -119,15 +123,17 @@ class SignInActivity : AppCompatActivity() {
                         rememberMe = rememberMe
                     )
 
-                    // Save remembered email
-                    sessionManager.saveRememberedEmail(user.email, rememberMe)
+                    // Verify it saved
+                    android.util.Log.d("AUTH_DEBUG", "Saved IsLoggedIn: ${sessionManager.isLoggedIn()}")
 
+                    sessionManager.saveRememberedEmail(user.email, rememberMe)
                     Toast.makeText(this, "Welcome ${user.username}!", Toast.LENGTH_SHORT).show()
                     navigateToHome()
                     finish()
                 }
 
                 is AuthViewModel.ResultState.Error -> {
+                    android.util.Log.e("AUTH_DEBUG", "State: Error - ${state.message}")
                     Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
                 }
             }
@@ -144,6 +150,6 @@ class SignInActivity : AppCompatActivity() {
     private fun navigateToHome() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        Toast.makeText(this, "Navigate to Home Screen", Toast.LENGTH_SHORT).show()
+        startActivity(intent)
     }
 }

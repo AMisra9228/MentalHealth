@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.sample.mentalhealth.common.SessionManager
 import com.sample.mentalhealth.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -21,6 +22,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setUpNavBottom()
+
+        debugSession()
+
     }
 
     private fun setUpNavBottom(){
@@ -36,5 +40,16 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
 
         _binding = null
+    }
+
+    // Add to MainActivity.onCreate() for debugging
+    private fun debugSession() {
+        val sessionManager = SessionManager(this)
+        android.util.Log.d("DEBUG", "=== Session Debug ===")
+        android.util.Log.d("DEBUG", "IsLoggedIn: ${sessionManager.isLoggedIn()}")
+        android.util.Log.d("DEBUG", "Token: ${sessionManager.getToken()}")
+        android.util.Log.d("DEBUG", "Username: ${sessionManager.getUsername()}")
+        android.util.Log.d("DEBUG", "Email: ${sessionManager.getEmail()}")
+        android.util.Log.d("DEBUG", "=====================")
     }
 }
