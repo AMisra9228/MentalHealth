@@ -7,15 +7,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sample.mentalhealth.MyApp
 import com.sample.mentalhealth.common.SessionManager
 import com.sample.mentalhealth.databinding.FragmentHomeBinding
 import com.sample.mentalhealth.di.ViewModelFactory
 import com.sample.mentalhealth.login_registration.UserViewModelNew
-import com.sample.mentalhealth.retrofit.RetrofitClient
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomeFragment : Fragment() {
@@ -161,32 +158,6 @@ class HomeFragment : Fragment() {
             ).show()
             return
         }
-
-        /*lifecycleScope.launch {
-            try {
-                // ✅ Pass token in header (depends on your API setup)
-                val response = RetrofitClient.apiService
-                    .getOverviewItems("Bearer $token")  // Update based on your API
-
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        overviewAdapter.submitList(it)
-                    }
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error: ${response.code()}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    e.message,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }*/
     }
 
     private fun setupUpcomingUpdates() {

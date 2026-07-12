@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
         setUpNavBottom()
 
-        debugSession()
+        //debugSession()
 
     }
 

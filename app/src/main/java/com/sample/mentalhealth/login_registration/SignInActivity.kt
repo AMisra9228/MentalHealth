@@ -57,8 +57,8 @@ class SignInActivity : AppCompatActivity() {
 
         // Forgot password
         binding.tvForgotPass.setOnClickListener {
-            Toast.makeText(this, "Forgot Password clicked", Toast.LENGTH_SHORT).show()
-//             startActivity(Intent(this, ForgotPasswordActivity::class.java))
+//            Toast.makeText(this, "Forgot Password clicked", Toast.LENGTH_SHORT).show()
+             startActivity(Intent(this, ResetActivity::class.java))
         }
 
         // Sign Up

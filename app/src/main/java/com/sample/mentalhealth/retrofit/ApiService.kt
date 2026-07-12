@@ -1,6 +1,8 @@
 package com.sample.mentalhealth.retrofit
 
 import com.sample.mentalhealth.home.OverviewItem
+import com.sample.mentalhealth.login_registration.model.ForgotPasswordRequest
+import com.sample.mentalhealth.login_registration.model.ForgotPasswordResponse
 import com.sample.mentalhealth.login_registration.model.SignInRequest
 import com.sample.mentalhealth.login_registration.model.SignInResponse
 import com.sample.mentalhealth.login_registration.model.SignupRequest
@@ -20,4 +22,7 @@ interface ApiService {
 
     @POST("api/signin.php")
     suspend fun signIn(@Body request: SignInRequest): Response<SignInResponse>
+
+    @POST("api/forgot_password.php")
+    suspend fun forgotPassword(@Body request: ForgotPasswordRequest): ForgotPasswordResponse
 }
