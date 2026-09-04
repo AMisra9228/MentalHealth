@@ -12,6 +12,7 @@ object RetrofitClient {
 
     // host machine's localhost from the Android Emulator
     private const val BASE_URL = "http://192.168.0.118/mind_talk/"
+    //private const val BASE_URL = "https://mtalk.ifree.page/api/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = Level.BODY

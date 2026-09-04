@@ -1,5 +1,6 @@
 package com.sample.mentalhealth.login_registration.repository
 
+import android.util.Log
 import com.sample.mentalhealth.login_registration.model.ForgotPasswordRequest
 import com.sample.mentalhealth.retrofit.ApiService
 import com.sample.mentalhealth.retrofit.RetrofitClient
@@ -16,6 +17,8 @@ class ForgotPasswordRepository(
             try {
                 val request = ForgotPasswordRequest(emailOrUsername = emailOrUsername)
                 val response = apiService.forgotPassword(request)
+
+                //Log.d("FORGOT_PASSWORD", "Code: ${response}")
 
                 if (response.status == true) {
                     Result.success(response.message ?: "Reset link sent successfully")
